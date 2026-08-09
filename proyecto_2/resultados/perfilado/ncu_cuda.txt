@@ -1,0 +1,9 @@
+==PROF== Connected to process 22803 (/home/yitanubuntu/Escritorio/RandallBolanos_ChristopherRodriguez_AndresMolina_a2_2026_s1/proyecto_2/bin/renderer_cuda_dummy)
+==PROF== Profiling "ray_trace_kernel" - 0: 0%....50%....100% - 34 passes
+==PROF== Disconnected from process 22803
+[CUDA] GPU: NVIDIA GeForce RTX 4060 | SM 8.9 | SMs: 24 | Mem: 7796 MB
+[CUDA] Grid: 100x57 bloques | Block: 16x16 hilos | Total hilos: 1459200
+[CUDA] 1600x900 | kernel time: 902.05 ms | depth=3 | Phong + shadows + reflection (sin transferencias PCIe)
+[CUDA] PCIe D→H: 1.44304 ms | TOTAL: 903.493 ms | Mpix/s (total): 1.59381
+[CUDA] Imagen escrita en: /dev/null
+==PROF== Report: /home/yitanubuntu/Escritorio/RandallBolanos_ChristopherRodriguez_AndresMolina_a2_2026_s1/proyecto_2/resultados/perfilado/ncu_cuda_report.ncu-rep

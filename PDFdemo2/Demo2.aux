@@ -1,0 +1,54 @@
+\relax 
+\providecommand\babel@aux[2]{}
+\@nameuse{bbl@beforestart}
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\babel@aux{spanish}{}
+\@writefile{toc}{\contentsline {section}{\numberline {I}Resumen del Estado Actual}{1}{section.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {II}Diagramas de Soluciones Esquemáticas Preliminares}{1}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-A}}Implementación Secuencial (Baseline)}{1}{subsection.2.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Diagrama SEQ: pipeline por píxel completamente secuencial.}}{1}{figure.caption.1}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{fig:seq_diag}{{1}{1}{Diagrama SEQ: pipeline por píxel completamente secuencial}{figure.caption.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-B}}Prototipo SIMD/AVX2 — Cambios Significativos}{1}{subsection.2.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Pipeline SIMD: los bloques en verde oscuro son los cambios más significativos respecto al diseño secuencial.}}{1}{figure.caption.2}\protected@file@percent }
+\newlabel{fig:simd_diag}{{2}{1}{Pipeline SIMD: los bloques en verde oscuro son los cambios más significativos respecto al diseño secuencial}{figure.caption.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {II-C}}Prototipo CUDA — Cambios Significativos}{2}{subsection.2.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Diagrama CUDA: bloques en naranja oscuro son los cambios más significativos frente al diseño secuencial.}}{2}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:cuda_diag}{{3}{2}{Diagrama CUDA: bloques en naranja oscuro son los cambios más significativos frente al diseño secuencial}{figure.caption.3}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {III}Métricas de Ejecución — Versiones Base y Dummy}{2}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-A}}Estadísticas por Implementación y Resolución}{2}{subsection.3.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {I}{\ignorespaces Estadísticas de tiempo de ejecución (ms).}}{2}{table.caption.4}\protected@file@percent }
+\newlabel{tab:stats}{{I}{2}{Estadísticas de tiempo de ejecución (ms)}{table.caption.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-B}}Speedup y Eficiencia Paralela en 1600×900}{2}{subsection.3.2}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {II}{\ignorespaces Speedup y eficiencia paralela respecto a SEQ (1600×900).}}{2}{table.caption.5}\protected@file@percent }
+\newlabel{tab:speedup}{{II}{2}{Speedup y eficiencia paralela respecto a SEQ (1600×900)}{table.caption.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {III-C}}Escalabilidad con la Resolución}{2}{subsection.3.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {III}{\ignorespaces Escalabilidad de tiempos (ms) al aumentar la resolución.}}{2}{table.caption.6}\protected@file@percent }
+\newlabel{tab:escal}{{III}{2}{Escalabilidad de tiempos (ms) al aumentar la resolución}{table.caption.6}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {IV}Gráficas de Desempeño}{3}{section.4}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Speedup de SIMD y CUDA respecto al baseline secuencial.}}{3}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:speedup}{{4}{3}{Speedup de SIMD y CUDA respecto al baseline secuencial}{figure.caption.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Tiempo de ejecución vs.\ resolución (escala logarítmica).}}{3}{figure.caption.8}\protected@file@percent }
+\newlabel{fig:tiempo}{{5}{3}{Tiempo de ejecución vs.\ resolución (escala logarítmica)}{figure.caption.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Escalabilidad normalizada: tiempo relativo al aumentar la resolución.}}{3}{figure.caption.9}\protected@file@percent }
+\newlabel{fig:escaln}{{6}{3}{Escalabilidad normalizada: tiempo relativo al aumentar la resolución}{figure.caption.9}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Eficiencia paralela de cada implementación.}}{3}{figure.caption.10}\protected@file@percent }
+\newlabel{fig:efic}{{7}{3}{Eficiencia paralela de cada implementación}{figure.caption.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Variabilidad estadística de las mediciones.}}{3}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:variab}{{8}{3}{Variabilidad estadística de las mediciones}{figure.caption.11}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {V}Variables Más Significativas para Aumentar la Paralelización}{3}{section.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-A}}Variables de Primer Orden}{4}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {V-B}}Variables de Segundo Orden}{4}{subsection.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {VI}Esquema DLP de las Partes del Problema}{4}{section.6}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Esquema DLP completo del ray tracer: sub-problemas, naturaleza del paralelismo de datos y mapeo a las implementaciones SIMD y CUDA.}}{4}{figure.caption.12}\protected@file@percent }
+\newlabel{fig:dlp_schema}{{9}{4}{Esquema DLP completo del ray tracer: sub-problemas, naturaleza del paralelismo de datos y mapeo a las implementaciones SIMD y CUDA}{figure.caption.12}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {\mbox  {VI-A}}Análisis por Sub-problema}{4}{subsection.6.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {VII}Trabajo Pendiente para Demo 3}{4}{section.7}\protected@file@percent }
+\bibcite{shirley}{1}
+\bibcite{intel_avx}{2}
+\bibcite{cuda_prog}{3}
+\bibcite{pharr}{4}
+\@writefile{toc}{\contentsline {section}{Referencias}{5}{section*.13}\protected@file@percent }
+\gdef \@abspage@last{5}

@@ -1,0 +1,14 @@
+Metrica,Valor
+sm_compute_throughput_pct,37.06
+dram_throughput_pct,11.93
+l1_tex_throughput_pct,80.59
+l2_throughput_pct,89.68
+mem_throughput_gbs,89.68
+l1_hit_rate_pct,0.0
+l2_hit_rate_pct,89.68
+ipc_active,1.35
+issue_slots_busy_pct,33.83
+theoretical_occupancy_pct,100.0
+achieved_occupancy_pct,29.76
+avg_active_threads_per_warp,30.0
+warp_cycles_per_instruction,10.61

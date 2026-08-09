@@ -1,0 +1,10 @@
+[CUDA] GPU: NVIDIA GeForce RTX 4060 | SM 8.9 | SMs: 24 | Mem: 7796 MB
+[CUDA] Grid: 100x57 bloques | Block: 16x16 hilos | Total hilos: 1459200
+[CUDA] 1600x900 | kernel time: 0.528384 ms | depth=3 | Phong + shadows + reflection (sin transferencias PCIe)
+[CUDA] PCIe D→H: 1.44912 ms | TOTAL: 1.9775 ms | Mpix/s (total): 728.191
+[CUDA] Imagen escrita en: /dev/null
+Importer error status: The importer binary and its dependencies were not found.
+Unable to retrieve the importer version: skipping importation of the QDSTRM file.
+Generating '/tmp/nsys-report-6d8d.qdstrm'
+Generated:
+    /home/yitanubuntu/Escritorio/RandallBolanos_ChristopherRodriguez_AndresMolina_a2_2026_s1/proyecto_2/resultados/perfilado/nsys_cuda.qdstrm

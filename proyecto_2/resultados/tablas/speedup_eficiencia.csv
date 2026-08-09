@@ -1,0 +1,4 @@
+Impl,T_ms,Speedup,Eficiencia_pct,Referencia
+SEQ,275.928,1.0,100.0,1 hilo
+SIMD,93.4772,2.9518,36.90,8 lanes AVX2
+CUDA,18.4757,14.9346,62.23,24 SMs RTX 4060

@@ -1,0 +1,311 @@
+\documentclass[conference]{IEEEtran}
+\IEEEoverridecommandlockouts
+
+\usepackage[spanish,es-noshorthands]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{cite}
+\usepackage{float}
+\usepackage{caption}
+\usepackage{subcaption}
+
+\usetikzlibrary{arrows.meta, positioning, shapes.geometric, fit, backgrounds, calc}
+
+% Colores personalizados
+\definecolor{rayblue}{RGB}{30, 100, 180}
+\definecolor{simdgreen}{RGB}{20, 140, 60}
+\definecolor{gpuorange}{RGB}{200, 90, 20}
+\definecolor{codebackground}{RGB}{248, 248, 248}
+\definecolor{codekeyword}{RGB}{0, 0, 180}
+
+% Estilo listings
+\lstset{
+  backgroundcolor=\color{codebackground},
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{codekeyword}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  frame=single,
+  breaklines=true,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  tabsize=2
+}
+
+% ---------------------------------------------------------------
+\begin{document}
+
+\title{\textbf{Proyecto Grupal 2: Ray Tracing Paralelo con DLP}\\
+{\large Demostración 1 — CE 4302 Arquitectura de Computadores II}}
+
+\author{
+  \IEEEauthorblockN{Randall Bryan Bolaños López}
+  \IEEEauthorblockA{Escuela de Ingeniería en Computadores\\
+    Instituto Tecnológico de Costa Rica\\
+    \textit{Semestre I, 2026}}
+  \and
+  \IEEEauthorblockN{Christopher Rodriguez}
+  \IEEEauthorblockA{Escuela de Ingeniería en Computadores\\
+    Instituto Tecnológico de Costa Rica\\
+    \textit{Semestre I, 2026}}
+  \and
+  \IEEEauthorblockN{Andres Molina}
+  \IEEEauthorblockA{Escuela de Ingeniería en Computadores\\
+    Instituto Tecnológico de Costa Rica\\
+    \textit{Semestre I, 2026}}
+}
+
+\maketitle
+
+% ---------------------------------------------------------------
+\begin{abstract}
+Este documento presenta la propuesta del Proyecto Grupal 2 para el curso CE 4302
+Arquitectura de Computadores II. Se selecciona \textit{ray tracing} como problema objetivo
+por su paralelismo de datos inherente: el cómputo por píxel es independiente. Se describen
+la descomposición del dominio (tiles), los diagramas para las implementaciones secuencial,
+SIMD/AVX2 en CPU y CUDA en GPU, y las métricas de desempeño para su evaluación.
+\end{abstract}
+
+% ---------------------------------------------------------------
+\section{Problema Seleccionado}
+
+\subsection{Descripción}
+
+El \textit{ray tracing} es un algoritmo de síntesis de imagen que simula el transporte de
+luz mediante el trazado de rayos desde una cámara virtual hacia una escena tridimensional.
+Para cada píxel $(x, y)$ de la imagen de resolución $W \times H$, se lanza al menos un rayo
+primario $\mathbf{r}(t) = \mathbf{o} + t\,\mathbf{d}$, donde $\mathbf{o}$ es el origen y
+$\mathbf{d}$ la dirección normalizada. El rayo se intersecta con primitivas geométricas
+(esferas, triángulos) y, al detectarse una colisión, se evalúa un modelo de iluminación
+(p. ej.\ Phong o Lambertian) y se emiten rayos secundarios de sombra o reflexión.
+
+\subsection{Justificación de la Selección}
+
+El \textit{ray tracing} es un problema \textbf{embarazosamente paralelo} (\textit{embarrassingly
+parallel}) por las siguientes razones técnicas:
+
+\begin{enumerate}
+  \item \textbf{Independencia de datos por píxel}: el cálculo del color del píxel
+    $(x_i, y_i)$ no depende del color calculado en $(x_j, y_j)$ para $i \neq j$.
+    No existen dependencias de datos inter-píxel en la etapa de trazado primario.
+
+  \item \textbf{Estructura uniforme de datos}: todos los rayos aplican exactamente
+    las mismas operaciones aritméticas sobre distintos datos de entrada (dirección del rayo).
+    Esto se mapea directamente al modelo SIMD: \textit{Single Instruction, Multiple Data}.
+
+  \item \textbf{Alta intensidad aritmética}: las operaciones dominantes son productos
+    escalares, raíces cuadradas y evaluaciones de intersección con esferas
+    ($|\mathbf{d}|^2 t^2 + \ldots = 0$), todas altamente vectorizables.
+
+  \item \textbf{Escalabilidad natural}: al incrementar la resolución
+    ($1920\times1080$, $3840\times2160$) o el número de muestras por píxel
+    (anti-aliasing), el volumen de trabajo crece sin cambiar la estructura de
+    dependencias, permitiendo analizar escalabilidad de forma controlada.
+
+  \item \textbf{Compatibilidad con GPU}: el modelo de ejecución SIMT
+    (\textit{Single Instruction, Multiple Threads}) de CUDA mapea
+    directamente un hilo por píxel, maximizando la ocupación del dispositivo.
+\end{enumerate}
+
+% ---------------------------------------------------------------
+\section{Implementación SIMD en CPU (AVX2)}
+
+\subsection{Justificación de AVX2}
+
+El procesador base AMD Ryzen 5 3600 (6 núcleos / 12 hilos) soporta AVX2 (256 bits),
+permitiendo operar sobre \textbf{8 valores \texttt{float32} simultáneamente}. No se
+considera AVX-512 porque no está disponible en esta plataforma, por lo que AVX2 es el
+máximo nivel SIMD explotable.
+
+\subsection{Diagrama de Pipeline SIMD}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  simdblock/.style={rectangle, draw, fill=simdgreen!20, minimum width=5.5cm,
+                    minimum height=0.6cm, align=center, font=\small},
+  label/.style={font=\scriptsize\ttfamily, text=simdgreen!60!black},
+  arrow/.style={-{Stealth}, thick, simdgreen!70!black}
+]
+  \node[simdblock] (load) {\textbf{1. Carga de 8 orígenes de rayo} (\texttt{\_mm256\_load\_ps})};
+  \node[simdblock, below=0.25cm of load] (dir)
+    {\textbf{2. Cálculo de 8 direcciones} — normalización vectorial};
+  \node[simdblock, below=0.25cm of dir] (inter)
+    {\textbf{3. Intersección rayo-esfera} (discriminante $b^2 - 4ac$)\\
+     \texttt{\_mm256\_fmadd\_ps}, \texttt{\_mm256\_sqrt\_ps}};
+  \node[simdblock, below=0.25cm of inter] (mask)
+    {\textbf{4. Máscara de hits} — \texttt{\_mm256\_cmp\_ps}};
+  \node[simdblock, below=0.25cm of mask] (shade)
+    {\textbf{5. Shading condicional} — \texttt{\_mm256\_blendv\_ps}};
+  \node[simdblock, below=0.25cm of shade] (store)
+    {\textbf{6. Almacén al framebuffer} — \texttt{\_mm256\_store\_ps}};
+
+  \draw[arrow] (load) -- (dir);
+  \draw[arrow] (dir) -- (inter);
+  \draw[arrow] (inter) -- (mask);
+  \draw[arrow] (mask) -- (shade);
+  \draw[arrow] (shade) -- (store);
+
+  % Anotación
+  \node[label, right=0.2cm of inter] {$\times 8$ floats};
+  \node[label, right=0.2cm of mask] {Hit mask 256b};
+\end{tikzpicture}
+\caption{Pipeline de ejecución SIMD/AVX2: 8 rayos procesados en paralelo por ciclo de vectorización.}
+\label{fig:simd}
+\end{figure}
+
+% ---------------------------------------------------------------
+\section{Implementación en GPU (CUDA)}
+
+\subsection{Mapeo de Hilos}
+
+En CUDA se lanza un kernel con un hilo por píxel, organizado en bloques 2D de
+$16 \times 16$ hilos (256 hilos/bloque), lo que favorece la coalescencia de
+accesos a memoria global.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[scale=0.80]
+  % Grid de bloques
+  \foreach \bx in {0,1,2} {
+    \foreach \by in {0,1} {
+      \pgfmathtruncatemacro{\idx}{\bx + \by*3}
+      \draw[thick, fill=gpuorange!15] ({\bx*2.2}, {\by*1.8})
+        rectangle ({(\bx+1)*2.2}, {(\by+1)*1.8});
+      \node[font=\scriptsize, align=center, text width=2.0cm] at ({(\bx+0.5)*2.2}, {(\by+0.5)*1.8})
+        {Bloque $(\bx,\by)$\\$16{\times}16$ hilos};
+    }
+  }
+
+  % Hilo individual
+  \draw[thick, fill=gpuorange!50, draw=gpuorange!80] (-1.05,0.15)
+    rectangle (-0.70,0.50);
+  \node[font=\tiny] at (-0.875,0.325) {$(i,j)$};
+  \draw[-{Stealth}, thick, gpuorange!80!black] (-0.70,0.325) -- (0.20,0.325);
+
+  % Etiquetas
+  \draw[<->, thick] (0,3.9) -- (6.6,3.9) node[midway, above] {\small $\lceil W/16 \rceil$ bloques};
+  \draw[<->, thick] (7.0,0) -- (7.0,3.6) node[midway, right] {\small $\lceil H/16 \rceil$};
+\end{tikzpicture}
+\caption{Organización de hilos CUDA: grid 2D de bloques $16\!\times\!16$, un hilo por píxel.}
+\label{fig:cuda}
+\end{figure}
+
+\subsection{Diagrama de Flujo del Kernel CUDA}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+  block/.style={rectangle, draw, fill=gpuorange!20, minimum width=4.5cm,
+                minimum height=0.6cm, align=center, font=\small},
+  arrow/.style={-{Stealth}, thick, gpuorange!70!black}
+]
+  \node[block] (idx) {\textbf{Calcular $(x,y)$} desde \texttt{blockIdx}, \texttt{threadIdx}};
+  \node[block, below=0.25cm of idx] (bound) {Verificar bounds $(x < W, y < H)$};
+  \node[block, below=0.25cm of bound] (gen) {Generar dirección del rayo primario};
+  \node[block, below=0.25cm of gen] (inter) {Loop intersección con objetos de la escena};
+  \node[block, below=0.25cm of inter] (shade) {Evaluar iluminación Lambertian / Phong};
+  \node[block, below=0.25cm of shade] (shadow) {Lanzar rayo de sombra (ray shadow)};
+  \node[block, below=0.25cm of shadow] (write)
+    {Escribir RGB al framebuffer global\\(\texttt{float3 *framebuffer[y*W+x]})};
+
+  \draw[arrow] (idx) -- (bound);
+  \draw[arrow] (bound) -- (gen);
+  \draw[arrow] (gen) -- (inter);
+  \draw[arrow] (inter) -- (shade);
+  \draw[arrow] (shade) -- (shadow);
+  \draw[arrow] (shadow) -- (write);
+\end{tikzpicture}
+\caption{Flujo de ejecución del kernel CUDA de ray tracing.}
+\label{fig:cudaflow}
+\end{figure}
+
+% ---------------------------------------------------------------
+\section{Métricas de Desempeño}
+
+\subsection{Métricas Seleccionadas y Justificación}
+
+La Tabla~\ref{tab:metrics} presenta las métricas elegidas junto con la
+justificación técnica para el sistema objetivo.
+
+\begin{table}[H]
+\centering
+\caption{Métricas de desempeño y herramientas de medición}
+\label{tab:metrics}
+\small
+\begin{tabular}{@{}p{2.2cm}p{2.6cm}p{2.8cm}@{}}
+\toprule
+\textbf{Métrica} & \textbf{Herramienta} & \textbf{Justificación} \\
+\midrule
+Tiempo total de ejecución (ms) &
+  \texttt{chrono}/CUDA Events &
+  Base para speedup; comparación directa entre versiones. \\[2pt]
+Speedup $S{=}T_\text{seq}/T_k$ &
+  Cálculo derivado &
+  Ganancia real de paralelismo vs.\ baseline secuencial. \\[2pt]
+Eficiencia $E{=}S/p$ &
+  Cálculo derivado &
+  Fracción del potencial teórico aprovechado. \\[2pt]
+Utilización SIMD (\%) &
+  \texttt{perf stat}, VTune &
+  Valida emisión correcta de AVX2 por el compilador. \\[2pt]
+Ocupación GPU (\%) &
+  Nsight Compute &
+  Verifica uso de SMs; $<50\%$ requiere tuning de bloques. \\[2pt]
+Ancho de banda (GB/s) &
+  Nsight Systems &
+  Cuello de botella potencial en resoluciones $>$1080p. \\[2pt]
+Caché L1/L2 misses &
+  \texttt{perf stat} &
+  Guía ajuste de tamaño de tile $B_w \times B_h$. \\[2pt]
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ---------------------------------------------------------------
+\section{Conclusiones de la Propuesta}
+
+El \textit{ray tracing} es una elección técnicamente sólida para explorar
+Data-Level Parallelism: su independencia de datos por píxel lo hace ideal para
+SIMD y GPU, su intensidad aritmética aprovecha las unidades vectoriales AVX2 del
+Ryzen 5 3600, y la escalabilidad natural del problema permite estudiar el comportamiento
+de las métricas en función del tamaño de entrada. La descomposición por dominio espacial
+(tiles) provee una granularidad controlable tanto para el nivel SIMD como para el
+nivel de bloques CUDA.
+
+% ---------------------------------------------------------------
+\begin{thebibliography}{9}
+
+\bibitem{patterson2017}
+J. L. Hennessy and D. A. Patterson,
+\textit{Computer Architecture: A Quantitative Approach}, 6th ed.
+Morgan Kaufmann, 2017.
+
+\bibitem{shirley2020}
+P. Shirley, \textit{Ray Tracing in One Weekend}, 2020. [Online].
+Available: \url{https://raytracing.github.io}
+
+\bibitem{nvidia2023}
+NVIDIA Corporation, \textit{CUDA C++ Programming Guide}, v12.4, 2024.
+[Online]. Available: \url{https://docs.nvidia.com/cuda/}
+
+\bibitem{intel2023}
+Intel Corporation, \textit{Intel Intrinsics Guide}, 2023.
+[Online]. Available: \url{https://www.intel.com/content/www/us/en/docs/intrinsics-guide/}
+
+\bibitem{amd2023}
+AMD Inc., \textit{Software Optimization Guide},
+2023.
+
+\end{thebibliography}
+
+\end{document}

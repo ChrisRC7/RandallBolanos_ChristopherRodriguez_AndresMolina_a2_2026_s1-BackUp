@@ -1,0 +1,30 @@
+[SIMD] 1600x900 | AVX2 8px/iter (Phong + shadows + reflexion depth=3) | scalar fallback=0px/fila | time: 19.925 ms | Mpix/s: 72.2711
+[SIMD] Imagen escrita en: /dev/null
+[SIMD] 1600x900 | AVX2 8px/iter (Phong + shadows + reflexion depth=3) | scalar fallback=0px/fila | time: 21.0355 ms | Mpix/s: 68.4557
+[SIMD] Imagen escrita en: /dev/null
+[SIMD] 1600x900 | AVX2 8px/iter (Phong + shadows + reflexion depth=3) | scalar fallback=0px/fila | time: 20.0917 ms | Mpix/s: 71.6714
+[SIMD] Imagen escrita en: /dev/null
+[SIMD] 1600x900 | AVX2 8px/iter (Phong + shadows + reflexion depth=3) | scalar fallback=0px/fila | time: 20.1771 ms | Mpix/s: 71.3681
+[SIMD] Imagen escrita en: /dev/null
+[SIMD] 1600x900 | AVX2 8px/iter (Phong + shadows + reflexion depth=3) | scalar fallback=0px/fila | time: 20.6033 ms | Mpix/s: 69.8916
+[SIMD] Imagen escrita en: /dev/null
+
+ Performance counter stats for './bin/renderer_simd_dummy 1600 900 /dev/null' (5 runs):
+
+       317.517.272      cycles                                                                  ( +-  0,65% )  (36,07%)
+       631.853.254      instructions                     #    1,99  insn per cycle            
+                                                  #    0,09  stalled cycles per insn     ( +-  0,39% )  (36,58%)
+       162.181.900      r0103                                                                   ( +-  7,50% )  (31,77%)
+        39.783.632      r0403                                                                   ( +-  9,99% )  (24,01%)
+       210.676.127      r0803                                                                   ( +-  7,14% )  (15,95%)
+       455.165.904      rff03                                                                   ( +-  6,44% )  (15,98%)
+       251.259.645      L1-dcache-loads                                                         ( +-  0,62% )  (23,98%)
+         1.379.883      L1-dcache-load-misses            #    0,55% of all L1-dcache accesses   ( +-  4,83% )  (24,02%)
+         2.501.639      cache-references                                                        ( +-  4,14% )  (31,97%)
+           149.601      cache-misses                     #    5,98% of all cache refs           ( +- 12,71% )  (31,43%)
+       115.393.764      branches                                                                ( +-  2,61% )  (37,83%)
+           375.805      branch-misses                    #    0,33% of all branches             ( +-  5,09% )  (36,26%)
+        54.452.532      stalled-cycles-frontend          #   17,15% frontend cycles idle        ( +-  3,74% )  (36,23%)
+
+          0,063444 +- 0,000524 seconds time elapsed  ( +-  0,83% )
+
